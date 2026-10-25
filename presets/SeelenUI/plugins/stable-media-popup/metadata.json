@@ -1,0 +1,19 @@
+{
+  "id": "@qih/tb-media-popup",
+  "metadata": {
+    "displayName": "音量 · 稳定入口",
+    "description": "Compatibility copy of Seelen UI v2.8.10 toolbar integration. Derived from eythaann/Seelen-UI; AGPL-3.0."
+  },
+  "icon": "IoVolumeHighOutline",
+  "target": "@seelen/fancy-toolbar",
+  "plugin": {
+    "scopes": [
+      "Media"
+    ],
+    "template": "return isMuted\n  ? icon(\"IoVolumeMuteOutline\")\n  : volume >= 0.66\n    ? icon(\"IoVolumeHighOutline\")\n    : volume >= 0.33\n      ? icon(\"IoVolumeMediumOutline\")\n      : volume != 0\n        ? icon(\"IoVolumeLowOutline\")\n        : icon(\"IoVolumeOffOutline\")",
+    "tooltip": "return [t(\"placeholder.volume\"), \": \", (volume * 100).toFixed(0), \"%\"]",
+    "onClick": "trigger(\"@seelen/media-popup\");",
+    "onWheelUp": "if (defaultOutputDevice) {\n  invoke(SeelenCommand.SetVolumeLevel, { deviceId: defaultOutputDevice.id, level: Math.min(1, volume + 0.02), sessionId: null });\n}",
+    "onWheelDown": "if (defaultOutputDevice) {\n  invoke(SeelenCommand.SetVolumeLevel, { deviceId: defaultOutputDevice.id, level: Math.max(0, volume - 0.02), sessionId: null });\n}"
+  }
+}

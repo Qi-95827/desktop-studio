@@ -1,0 +1,16 @@
+{
+  "id": "@qih/tb-calendar-popup",
+  "metadata": {
+    "displayName": "日期时间 · 稳定入口",
+    "description": "Compatibility copy of Seelen UI v2.8.10 toolbar integration. Derived from eythaann/Seelen-UI; AGPL-3.0."
+  },
+  "icon": "FaCalendar",
+  "target": "@seelen/fancy-toolbar",
+  "plugin": {
+    "scopes": [
+      "Date"
+    ],
+    "template": "return date",
+    "onClickV2": "trigger(\"@seelen/calendar-popup\");"
+  }
+}

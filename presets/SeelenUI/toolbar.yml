@@ -1,0 +1,16 @@
+isReorderDisabled: false
+left:
+- '@qih/apps'
+- '@qih/focused'
+center: []
+right:
+- '@qih/shanghai-weather'
+- '@qih/tb-system-tray'
+- '@qih/tb-keyboard-selector'
+- '@qih/tb-bluetooth-popup'
+- '@qih/tb-network-popup'
+- '@qih/tb-media-popup'
+- '@default/power'
+- '@qih/tb-notifications'
+- '@qih/tb-quick-settings'
+- '@qih/tb-calendar-popup'

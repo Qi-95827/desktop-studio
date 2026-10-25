@@ -1,0 +1,17 @@
+{
+  "id": "@qih/tb-bluetooth-popup",
+  "metadata": {
+    "displayName": "蓝牙 · 稳定入口",
+    "description": "Compatibility copy of Seelen UI v2.8.10 toolbar integration. Derived from eythaann/Seelen-UI; AGPL-3.0."
+  },
+  "icon": "TbBluetooth",
+  "target": "@seelen/fancy-toolbar",
+  "plugin": {
+    "scopes": [
+      "Bluetooth"
+    ],
+    "tooltip": "return \"Bluetooth\";",
+    "template": "const connectedDevices = devices.filter((d) => d.connected);\n\nif (!connectedDevices.length) {\n  return Icon({ name: \"TbBluetooth\" });\n}\n\nconst deviceIcons = [];\n\nfor (let i = 0; i < connectedDevices.length; i++) {\n  deviceIcons.push(Icon({ name: getIconNameForBTDevice(connectedDevices[i]) }));\n\n  if (i !== connectedDevices.length - 1) {\n    deviceIcons.push(\" \");\n  }\n}\n\nreturn [...deviceIcons, \" \", Icon({ name: \"TbBluetoothConnected\" })];\n",
+    "onClickV2": "trigger(\"@seelen/bluetooth-popup\");"
+  }
+}

@@ -1,0 +1,17 @@
+{
+  "id": "@qih/tb-network-popup",
+  "metadata": {
+    "displayName": "网络 · 稳定入口",
+    "description": "Compatibility copy of Seelen UI v2.8.10 toolbar integration. Derived from eythaann/Seelen-UI; AGPL-3.0."
+  },
+  "icon": "FaWifi",
+  "target": "@seelen/fancy-toolbar",
+  "plugin": {
+    "scopes": [
+      "Network"
+    ],
+    "tooltip": "return online ? t(\"placeholder.ethernet_connected\") : t(\"placeholder.ethernet_disconnected\")",
+    "template": "if (!online) return icon(\"TbWorldCancel\"); if (usingInterface?.type === \"IEEE80211\") return icon(\"FaWifi\"); return icon(\"FaComputer\");",
+    "onClickV2": "trigger(\"@seelen/network-popup\");"
+  }
+}

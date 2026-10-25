@@ -1,0 +1,11 @@
+[Variables]
+ClockWidgetSize=Medium
+CalendarWidgetSize=Medium
+MonitorWidgetSize=Medium
+WeatherWidgetSize=Medium
+MusicWidgetSize=Wide
+NotesWidgetSize=Medium
+RemindersWidgetSize=Medium
+TimerWidgetSize=Medium
+SettingsTab=Widgets
+VolumeWidgetSize=Wide

@@ -1,0 +1,20 @@
+name: Build and verify
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+jobs:
+  windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify scripts and presets
+        shell: powershell
+        run: ./scripts/Verify.ps1
+      - name: Compile native launcher and media bridge
+        shell: powershell
+        run: ./scripts/Build.ps1
+      - uses: actions/upload-artifact@v4
+        with:
+          name: DesktopStudio-native-win-x64
+          path: bin/

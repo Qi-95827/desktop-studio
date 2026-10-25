@@ -1,0 +1,13 @@
+/bin/
+/dist/
+/downloads/
+/runtime/
+/Data/
+/Backups/
+/Collections/
+/.test-*/
+/config.json
+*.log
+*.lnk
+*.url
+__pycache__/

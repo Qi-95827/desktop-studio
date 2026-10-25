@@ -1,0 +1,15 @@
+{
+  "id": "@qih/apps",
+  "metadata": {
+    "displayName": "apps",
+    "description": "Personal desktop configuration"
+  },
+  "icon": "TbLayoutGrid",
+  "target": "@seelen/fancy-toolbar",
+  "plugin": {
+    "scopes": [],
+    "template": "return [icon(\"TbGridDots\"), \"应用\"];",
+    "tooltip": "return \"打开分类启动面板\";",
+    "onClick": "trigger(\"@seelen/apps-menu\");"
+  }
+}

@@ -1,0 +1,19 @@
+{
+  "id": "@qih/focused",
+  "metadata": {
+    "displayName": "focused",
+    "description": "Personal desktop configuration"
+  },
+  "icon": "TbLayoutGrid",
+  "target": "@seelen/fancy-toolbar",
+  "plugin": {
+    "scopes": [
+      "FocusedApp"
+    ],
+    "template": "return focusedApp.name || \"桌面\";",
+    "style": {
+      "font-weight": "600"
+    },
+    "tooltip": "return focusedApp.title || \"Windows 桌面\";"
+  }
+}

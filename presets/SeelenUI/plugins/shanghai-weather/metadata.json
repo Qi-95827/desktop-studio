@@ -1,0 +1,22 @@
+{
+  "id": "@qih/shanghai-weather",
+  "metadata": {
+    "displayName": "shanghai-weather",
+    "description": "Personal desktop configuration"
+  },
+  "icon": "TbCloud",
+  "target": "@seelen/fancy-toolbar",
+  "plugin": {
+    "scopes": [],
+    "template": "try { const rows = weather.trim().split(\"\\n\"); const values = rows[rows.length - 1].split(\",\"); return [icon(\"TbCloud\"), \"上海 \" + Math.round(Number(values[1])) + \"°\"]; } catch (e) { return [icon(\"TbCloud\"), \"上海天气\"]; }",
+    "tooltip": "return \"上海天气 · Open-Meteo\";",
+    "onClick": "open(\"https://www.msn.com/zh-cn/weather\");",
+    "remoteData": {
+      "weather": {
+        "url": "https://api.open-meteo.com/v1/forecast?latitude=31.2304&longitude=121.4737&current=temperature_2m,weather_code&timezone=Asia%2FShanghai&format=csv",
+        "updateIntervalSeconds": 1800,
+        "requestInit": {}
+      }
+    }
+  }
+}

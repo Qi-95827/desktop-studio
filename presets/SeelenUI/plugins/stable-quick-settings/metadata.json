@@ -1,0 +1,14 @@
+{
+  "id": "@qih/tb-quick-settings",
+  "metadata": {
+    "displayName": "快捷设置 · 稳定入口",
+    "description": "Compatibility copy of Seelen UI v2.8.10 toolbar integration. Derived from eythaann/Seelen-UI; AGPL-3.0."
+  },
+  "icon": "RiSettings4Fill",
+  "target": "@seelen/fancy-toolbar",
+  "plugin": {
+    "tooltip": "t(\"placeholder.settings\")",
+    "template": "return Icon({ name: \"LuSettings2\" });",
+    "onClickV2": "trigger(\"@seelen/quick-settings\");"
+  }
+}

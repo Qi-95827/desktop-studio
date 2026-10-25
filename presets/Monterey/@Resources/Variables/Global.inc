@@ -1,0 +1,19 @@
+[Variables]
+Theme=Light
+DarkMode=0
+BatterySaverMode=0
+LightThemeBackground=fffffff0
+LightThemeForeground=26323c
+DarkThemeBackground=202632ed
+DarkThemeForeground=f5f5f7
+ColorThemeBackground=%0
+ColorThemeForeground=%1
+GrayColor=80808040
+DarkThemeFrom=23:00
+DarkThemeTo=09:00
+WidgetBase=135
+PaddingBase=12
+RadiusBase=24
+FontFace=Segoe UI
+Language=zh-CN
+Units=celsius

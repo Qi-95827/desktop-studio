@@ -1,0 +1,22 @@
+{
+  "id": "@qih/tb-keyboard-selector",
+  "metadata": {
+    "displayName": "输入法 · 稳定入口",
+    "description": "Compatibility copy of Seelen UI v2.8.10 toolbar integration. Derived from eythaann/Seelen-UI; AGPL-3.0."
+  },
+  "icon": "FaRegKeyboard",
+  "target": "@seelen/fancy-toolbar",
+  "plugin": {
+    "scopes": [
+      "Keyboard"
+    ],
+    "tooltip": "return [activeLang?.name || \"!?\", \" - \", activeKeyboard?.displayName || \"!?\"]",
+    "template": "if (!activeLang || !activeKeyboard) return \"!?\";\n\nconst lang = activeLang.code || \"\";\nconst ime = imeState;\n\nfunction getImeChar() {\n  if (!ime) return null;\n\n  // Japanese — ja-JP\n  if (lang.startsWith(\"ja\")) {\n    if (!ime.open || (!ime.native && !ime.fullShape)) return \"A\"; // Direct Input / Half-width Alphanumeric\n    if (!ime.native && ime.fullShape) return \"Ａ\"; // Full-width Alphanumeric\n    if (ime.native && !ime.katakana) return \"あ\"; // Hiragana\n    if (ime.native && ime.katakana && ime.fullShape) return \"ア\"; // Full-width Katakana\n    if (ime.native && ime.katakana && !ime.fullShape) return \"ｱ\"; // Half-width Katakana\n  }\n\n  // Chinese — zh-CN, zh-TW, zh-HK, etc.\n  if (lang.startsWith(\"zh\")) {\n    if (!ime.open || !ime.native) return \"英\"; // English / direct input\n    return \"中\"; // Chinese input\n  }\n\n  // Korean — ko-KR\n  if (lang.startsWith(\"ko\")) {\n    if (!ime.open || !ime.native) return \"A\"; // English\n    if (ime.hanja) return \"漢\"; // Hanja conversion\n    return \"한\"; // Hangul\n  }\n\n  return null;\n}\n\nconst imeChar = getImeChar();\n\nconst inputsLength = activeLang.keyboardLayouts.length;\nreturn [\n  imeChar,\n  imeChar ? \" | \" : \"\",\n  activeLangPrefix,\n  inputsLength > 1 ? \" - \" : \"\",\n  inputsLength > 1 ? activeKeyboardPrefix : \"\",\n];\n",
+    "style": {
+      "flexShrink": 0,
+      "width": "min-content",
+      "fontWeight": 600
+    },
+    "onClickV2": "trigger(\"@seelen/keyboard-selector\");"
+  }
+}

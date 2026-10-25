@@ -1,0 +1,15 @@
+{
+  "id": "@qih/tb-system-tray",
+  "metadata": {
+    "displayName": "系统托盘 · 稳定入口",
+    "description": "Compatibility copy of Seelen UI v2.8.10 toolbar integration. Derived from eythaann/Seelen-UI; AGPL-3.0."
+  },
+  "icon": "IoIosArrowDropdown",
+  "target": "@seelen/fancy-toolbar",
+  "plugin": {
+    "scopes": [
+      "Tray"
+    ],
+    "template": "const GUIDS_TO_IGNORE = [\n  \"7820ae73-23e3-4229-82c1-e41cb67d5b9c\", // speaker volument icon\n  \"7820ae74-23e3-4229-82c1-e41cb67d5b9c\", // network icon\n  \"7820ae75-23e3-4229-82c1-e41cb67d5b9c\", // battery icon\n];\n\nconst items = trayIcons\n  .filter((icon) => icon.isVisible && icon.isPromoted && !GUIDS_TO_IGNORE.includes(icon.guid))\n  .map((icon) => {\n    const onClick = `invoke(SeelenCommand.SendSystemTrayIconAction, {\n        id: \"${icon.sessionId}\",\n        action: \"LeftClick\",\n      })`;\n\n    const onAuxClick = `invoke(SeelenCommand.SendSystemTrayIconAction, {\n        id: \"${icon.sessionId}\",\n        action: \"MiddleClick\",\n      })`;\n\n    const onContextMenu = `invoke(SeelenCommand.SendSystemTrayIconAction, {\n        id: \"${icon.sessionId}\",\n        action: \"RightClick\",\n      })`;\n\n    return Button({\n      tooltip: icon.tooltip,\n      onClick,\n      onAuxClick,\n      onContextMenu,\n      content: Image({\n        path: icon.iconPath,\n        version: icon.iconImageHash,\n      }),\n    });\n  });\n\nconst OverflowButton = Button({\n  tooltip: \"System Tray\",\n  content: Icon({ name: \"IoIosArrowDropdown\" }),\n  onClick: `trigger(\"@seelen/system-tray\");`,\n});\nitems.push(OverflowButton);\n\nif (self.placement === \"left\") {\n  items.reverse();\n}\n\nreturn items;\n"
+  }
+}

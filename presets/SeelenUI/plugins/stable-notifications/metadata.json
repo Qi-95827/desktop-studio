@@ -1,0 +1,18 @@
+{
+  "id": "@qih/tb-notifications",
+  "metadata": {
+    "displayName": "通知 · 稳定入口",
+    "description": "Compatibility copy of Seelen UI v2.8.10 toolbar integration. Derived from eythaann/Seelen-UI; AGPL-3.0."
+  },
+  "icon": "IoNotificationsOutline",
+  "target": "@seelen/fancy-toolbar",
+  "plugin": {
+    "scopes": [
+      "Notifications"
+    ],
+    "template": "return [\n  dndActive ? icon(\"TbZzz\") : null,\n  count > 0 ? icon(\"MdNotificationsActive\") : icon(\"MdOutlineNotifications\"),\n]",
+    "badge": "return count > 0 ? count : null",
+    "tooltip": "return [t(\"placeholder.notifications\"), \": \", count]",
+    "onClickV2": "trigger(\"@seelen/notifications\");"
+  }
+}

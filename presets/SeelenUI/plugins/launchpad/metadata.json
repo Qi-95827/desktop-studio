@@ -1,0 +1,15 @@
+{
+  "id": "@qih/launchpad",
+  "metadata": {
+    "displayName": "launchpad",
+    "description": "Personal desktop configuration"
+  },
+  "icon": "TbLayoutGrid",
+  "target": "@seelen/weg",
+  "plugin": {
+    "scopes": [],
+    "render": "const c=canvas.getContext(\"2d\"); c.scale(canvas.width/256,canvas.height/256); c.fillStyle=\"#f5f5f7\"; for(let y=0;y<3;y++) for(let x=0;x<3;x++){ c.beginPath(); c.roundRect(38+x*66,38+y*66,46,46,11); c.fill(); }",
+    "tooltip": "return \"应用 · 八个分类\";",
+    "onClick": "trigger(\"@seelen/apps-menu\");"
+  }
+}
