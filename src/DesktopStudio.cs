@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.IO;
 using System.Text;
 using System.Linq;
@@ -25,7 +25,7 @@ namespace DesktopStudio {
   public static string Wallpaper {get{return PathSetting("WallpaperEngineExe");}}
   public static string Rain {get{return PathSetting("RainmeterExe",Path.Combine(Root,@"runtime\Rainmeter\Rainmeter.exe"));}}
   public static string Script {get{return Path.Combine(Root,@"scripts\Desktop-Profile.ps1");}}
-  public static void Shell(string path,string args="") {Process.Start(new ProcessStartInfo(path,args){UseShellExecute=true});}
+  public static void Shell(string path,string args="") {var info=new ProcessStartInfo(path,args){UseShellExecute=true};var profile=Path.Combine(Root,@"Data\BetterNCM");if(path.EndsWith("cloudmusic.exe",StringComparison.OrdinalIgnoreCase)&&Directory.Exists(profile)){info.UseShellExecute=false;info.EnvironmentVariables["BETTERNCM_PROFILE"]=profile;}Process.Start(info);}
   public static Process Profile(string action) {return Process.Start(new ProcessStartInfo("powershell.exe","-NoProfile -WindowStyle Hidden -STA -File \""+Script+"\" -Action "+action){UseShellExecute=false,CreateNoWindow=true,WindowStyle=ProcessWindowStyle.Hidden});}
   [STAThread] public static void Main(string[] args) {
    if(args.Contains("--startup")) {var f=Path.Combine(Root,@"Data\desktop-mode.txt");var mode=File.Exists(f)?File.ReadAllText(f).Trim():"windows";Profile(mode=="apple"?"Apply":"Restore");return;}
@@ -82,7 +82,7 @@ namespace DesktopStudio {
     content.Children.Add(Text("只显示你需要的，可以直接在桌面拖动位置。",13,"#7A879B"));
     content.Children.Add(Card("上海天气","实时温度与天气状况 · Open-Meteo",Row(Btn("显示 / 隐藏",()=>ToggleWidget("Weather","Medium.ini")),Btn("天气设置",()=>Bang("!ActivateConfig \"Monterey\\Widgets\\Weather\" \"Settings.ini\"")))));
     content.Children.Add(Card("月历","中文星期，一眼看到本月安排。",Btn("显示 / 隐藏",()=>ToggleWidget("Calendar","Medium.ini"))));
-    content.Children.Add(Card("网易云音乐卡片","实时歌名、歌手、封面，以及播放 / 暂停和切歌。",Row(Btn("显示 / 隐藏",()=>ToggleWidget("Music","Wide.ini")),Btn("打开网易云",()=>Tool(Program.NetEase)))));
+    content.Children.Add(Card("网易云音乐卡片","封面、播放控制与可配置的同步滚动歌词。",Row(Btn("显示 / 隐藏",()=>ToggleWidget("Music","Wide.ini")),Btn("打开网易云",()=>Tool(Program.NetEase)),Btn("歌词设置",LyricsSettings),Btn("安装歌词适配",InstallLyrics))));
     content.Children.Add(Card("随手记","便签内容保存在本机。",Row(Btn("显示 / 隐藏",()=>ToggleWidget("Notes","Medium.ini")),Btn("编辑便签",EditNotes))));
     content.Children.Add(Row(Btn("重置推荐布局",()=>RunProfile("ResetLayout","恢复组件布局")),Btn("Rainmeter 管理器",()=>Tool(Program.Rain,"!Manage"))));
    }else if(name=="tools"){
@@ -90,7 +90,7 @@ namespace DesktopStudio {
     Project("Seelen UI","Dock、顶部状态栏与分类启动面板。",()=>Tool(Program.Slu,"settings"),"https://github.com/eythaann/Seelen-UI");
     Project("Rainmeter","便携版小组件运行器，程序和皮肤保存在整合包目录。",()=>Tool(Program.Rain,"!Manage"),"https://github.com/rainmeter/rainmeter");
     Project("Monterey","苹果风格的天气、日历、音乐和便签组件。",()=>Bang("!ActivateConfig \"Monterey\" \"Settings.ini\""),"https://github.com/creewick/MontereyRainmeter");
-    Project("媒体接口与网易云适配","Monterey 附带 MediaPlayer；音乐卡片使用专用 SMTC 桥接，固定连接网易云。",()=>MessageBox.Show("网易云设置 → 系统 → 开启 SMTC。\n专用桥接只读取和控制 cloudmusic.exe 的媒体会话，不会修改网易云安装文件。\n桥接随小组件启动，收起组件后自动退出。","网易云适配"),"https://github.com/i2002/RainmeterMediaPlayer");
+    Project("媒体接口与网易云适配","Monterey 附带 MediaPlayer；音乐卡片使用专用 SMTC 桥接，固定连接网易云。",()=>MessageBox.Show("网易云设置 → 系统 → 开启 SMTC。\nInfLink-rs 补充网易云播放进度与歌曲 ID，Lyricify Lyrics Helper 获取并解析歌词。\n桥接随小组件启动，收起组件后自动退出。","网易云适配"),"https://github.com/i2002/RainmeterMediaPlayer");
     content.Children.Add(Card("Wallpaper Engine","继续使用你原有的动态壁纸。",Btn("打开壁纸选择器",()=>Tool(Program.Wallpaper,"-showui"))));
    }else{
     content.Children.Add(Card("八个应用分类","复制快捷方式到分类文件夹后，点击同步。原文件保留在原位置。",Row(Btn("打开分类面板",()=>Tool(Program.Slu,"widget trigger @seelen/apps-menu")),Btn("查看快捷方式文件夹",()=>Tool(Path.Combine(Program.Root,"Collections"))),Btn("同步快捷方式",()=>RunProfile("SyncShortcuts","同步快捷方式")))));
@@ -99,6 +99,41 @@ namespace DesktopStudio {
    }
   }
   void Project(string title,string desc,Action settings,string url){content.Children.Add(Card(title,desc,Row(Btn("打开 / 设置",settings),Btn("GitHub 项目",()=>Program.Shell(url)))));}
+
+  async void InstallLyrics(){
+   if(busy)return;busy=true;toast.Text="正在安装网易云歌词适配；受保护的目录可能需要 Windows 授权。";
+   try{var info=new ProcessStartInfo("powershell.exe","-NoProfile -File \""+Path.Combine(Program.Root,@"scripts\Install-NetEaseLyrics.ps1")+"\""){UseShellExecute=false,CreateNoWindow=true,RedirectStandardOutput=true,RedirectStandardError=true};var p=Process.Start(info);var output=p.StandardOutput.ReadToEndAsync();var errors=p.StandardError.ReadToEndAsync();await Task.Run(()=>p.WaitForExit());var text=await output;var error=await errors;if(p.ExitCode!=0)throw new InvalidOperationException(error);toast.Text="适配已安装。请完全退出并重新打开网易云，再启用歌词。";
+   }catch(Exception e){toast.Text="安装未完成："+e.Message;}finally{busy=false;}
+  }
+  void LyricsSettings(){
+   var folder=Path.Combine(Program.Root,@"Data\NetEase");Directory.CreateDirectory(folder);
+   var path=Path.Combine(folder,"lyrics-settings.json");var json=new JavaScriptSerializer();
+   var values=File.Exists(path)?json.Deserialize<Dictionary<string,object>>(File.ReadAllText(path)):new Dictionary<string,object>();
+   Func<string,object,object> get=(k,d)=>values.ContainsKey(k)?values[k]:d;
+   var win=new Window{Title="音乐卡片 · 歌词设置",Width=460,Height=530,ResizeMode=ResizeMode.NoResize,Owner=this,WindowStartupLocation=WindowStartupLocation.CenterOwner,Background=B("#F4F6FA"),FontFamily=FontFamily,FontSize=13};win.Resources[typeof(Button)]=((Grid)Content).Resources[typeof(Button)];
+   var panel=new StackPanel{Margin=new Thickness(26)};
+   panel.Children.Add(Text("跟着音乐，轻轻滚动。",20));
+   panel.Children.Add(Text("封面与播放控制保持原样，歌词显示在卡片下方。",12,"#78859A"));
+   var enabled=new CheckBox{Content="在卡片内显示歌词",IsChecked=Convert.ToBoolean(get("Enabled",true)),Margin=new Thickness(0,12,0,18),FontSize=14};panel.Children.Add(enabled);
+   var count=new ComboBox{ItemsSource=new[]{2,3,4},SelectedItem=Convert.ToInt32(get("Lines",3)),Margin=new Thickness(0,0,0,12),Padding=new Thickness(8)};
+   panel.Children.Add(Text("显示行数",12));panel.Children.Add(count);
+   var font=new ComboBox{ItemsSource=new[]{14,16,18,20,22,24},SelectedItem=Convert.ToInt32(get("FontSize",18)),Margin=new Thickness(0,0,0,12),Padding=new Thickness(8)};
+   panel.Children.Add(Text("歌词字号（原生高清渲染）",12));panel.Children.Add(font);
+   int oldOffset=Convert.ToInt32(get("OffsetMs",0));
+   var label=Text("同步偏移："+(oldOffset/1000.0).ToString("+0.0;-0.0;0.0")+" 秒",12);panel.Children.Add(label);
+   var offset=new Slider{Minimum=-5,Maximum=5,Value=oldOffset/1000.0,TickFrequency=.1,IsSnapToTickEnabled=true,Margin=new Thickness(0,0,0,14)};
+   offset.ValueChanged+=(s,e)=>label.Text="同步偏移："+offset.Value.ToString("+0.0;-0.0;0.0")+" 秒（正值提前）";panel.Children.Add(offset);
+   var smooth=new CheckBox{Content="平滑滚动",IsChecked=Convert.ToBoolean(get("Smooth",true)),Margin=new Thickness(0,0,0,12)};panel.Children.Add(smooth);
+   panel.Children.Add(Text("歌词与进度来自网易云适配。无歌词或未连接时显示提示；关闭后卡片恢复原高度。",11,"#78859A"));
+   panel.Children.Add(Btn("保存并应用",()=>{
+    var rows=count.SelectedItem==null?3:(int)count.SelectedItem;var size=font.SelectedItem==null?18:(int)font.SelectedItem;var on=enabled.IsChecked==true;
+    var settings=new Dictionary<string,object>{{"Enabled",on},{"Lines",rows},{"FontSize",size},{"OffsetMs",(int)Math.Round(offset.Value*1000)},{"Smooth",smooth.IsChecked==true}};
+    File.WriteAllText(path+".tmp",json.Serialize(settings),new UTF8Encoding(false));if(File.Exists(path))File.Replace(path+".tmp",path,null);else File.Move(path+".tmp",path);
+    File.WriteAllText(Path.Combine(folder,"LyricsView.inc"),"[Variables]\r\nLyricsEnabled="+(on?1:0)+"\r\nLyricsRows="+rows+"\r\nLyricsFontSize="+size+"\r\nLyricsLineHeight="+Math.Ceiling(size*2.2)+"\r\n",Encoding.Unicode);
+    Bang("!Refresh \"Monterey\\Widgets\\Music\"");toast.Text="歌词设置已保存。";win.Close();
+   },true));win.Content=panel;win.ShowDialog();
+  }
+
   void EditNotes(){var p=Path.Combine(Path.GetDirectoryName(Program.Rain),@"Skins\Monterey\@Resources\Variables\Notes.inc");var raw=File.ReadAllText(p);var m=System.Text.RegularExpressions.Regex.Match(raw,@"(?m)^Content=(.*)$");var text=new TextBox{Text=m.Groups[1].Value.TrimEnd('\r').Replace(@"[\13][\10]",Environment.NewLine),AcceptsReturn=true,TextWrapping=TextWrapping.Wrap,VerticalScrollBarVisibility=ScrollBarVisibility.Auto,Margin=new Thickness(20),FontSize=15};var win=new Window{Title="随手记",Width=480,Height=370,Owner=this,WindowStartupLocation=WindowStartupLocation.CenterOwner,Background=B("#F4F6FA")};var panel=new DockPanel();var save=Btn("保存便签",()=>{var v=text.Text.Replace("\r\n",@"[\13][\10]").Replace("\n",@"[\13][\10]");var updated=System.Text.RegularExpressions.Regex.Replace(raw,@"(?m)^Content=.*$",_=>"Content="+v);File.WriteAllText(p,updated,Encoding.Unicode);Bang("!Refresh \"Monterey\\Widgets\\Notes\"");win.Close();});save.Margin=new Thickness(20,0,20,20);DockPanel.SetDock(save,Dock.Bottom);panel.Children.Add(save);panel.Children.Add(text);win.Content=panel;win.ShowDialog();}
   void ShowDesktop(){Type t=Type.GetTypeFromProgID("Shell.Application");dynamic shell=Activator.CreateInstance(t);shell.MinimizeAll();}
  }

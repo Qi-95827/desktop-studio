@@ -34,3 +34,7 @@
 - `@Resources/Variables/Weather.inc`
 - `Widgets/Music/Wide.ini`
 - `Widgets/Weather/Medium.ini`
+
+音乐卡片新增可关闭的 2–4 行同步歌词区域、当前行高亮和数值平滑滚动。
+歌词动画为本项目新增文件：`@Resources/Scripts/Widgets/LyricsAnimation.lua`，
+随本目录采用 CC BY-NC-SA 4.0。文字通过原生 UTF-16 通道更新，避免中文乱码。

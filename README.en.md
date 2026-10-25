@@ -97,8 +97,26 @@ not need to stay open. Disable `DesktopStudio` in Windows Startup Apps to stop a
 
 Enable **设置 → 系统 → 开启 SMTC** in NetEase. Setup looks for common installation
 paths; if needed, set `NetEaseExe` in local `config.json`. The bridge only reads and
-controls the `cloudmusic.exe` Windows media session and does not patch the client.
-Lyrics are not included. Artwork quality is limited by the original thumbnail
+controls the `cloudmusic.exe` Windows media session.
+
+Optional synchronized lyrics: choose **小组件 → 网易云音乐卡片 → 安装歌词适配**,
+fully restart NetEase, then enable **歌词设置**. The pinned adapter supports NetEase
+**3.1.20–3.1.41 x64**. Protected client directories require Windows authorization.
+It adds a verified BetterNCM loader, without replacing original executables, and
+stores InfLink-rs plus its profile under the bundle’s `Data/BetterNCM`.
+An unknown existing loader is never overwritten.
+
+The upper artwork/transport layout stays in place. Lyrics appear below in the same
+soft white card, with 2/3/4 rows, font size, ±5s offset, current-line emphasis and
+optional smooth scrolling. Turning lyrics off restores the original card height.
+InfLink-rs supplies the exact song ID/timeline; the Apache-2.0 Lyricify Lyrics Helper
+fetches and parses lyrics. Pause, seeking and track changes follow that timeline;
+missing progress shows a waiting message. Lyrics/artwork/cache remain local and are
+never included in source or release archives. Lyrics are disabled by default.
+Pinned downloads: [lyrics-dependencies.lock.json](lyrics-dependencies.lock.json).
+Run `scripts/Install-NetEaseLyrics.ps1 -Plan` to inspect setup.
+
+Artwork quality is limited by the original thumbnail
 provided by NetEase; native DPI rendering cannot recover missing image detail.
 
 ### Shortcut groups
@@ -165,3 +183,7 @@ See [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md) for versions, roles and lic
 The original launcher and integration scripts use [MIT](LICENSE). Monterey-derived
 skins remain **CC BY-NC-SA 4.0**; integration does not remove their noncommercial
 or share-alike requirements.
+
+The lyrics worker requires .NET 6 SDK for source builds.
+`./scripts/Build-Lyrics.ps1 -SelfContained` bundles the Windows x64 runtime for releases.
+The pinned Lyricify Lyrics Helper source and Apache-2.0 license are in `third_party/`.

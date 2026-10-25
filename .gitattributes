@@ -1,0 +1,2 @@
+# Preserve whitespace in the vendored upstream snapshot.
+third_party/** whitespace=-blank-at-eol

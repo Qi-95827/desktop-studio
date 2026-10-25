@@ -6,7 +6,7 @@ if(-not[IO.Path]::IsPathRooted($InstallRoot) -or $destination.TrimEnd('\') -eq [
 if($Plan){Write-Output ('Install to '+$destination);Write-Output 'Copy public launcher and presets; verify pinned upstream downloads; install Seelen UI and portable Rainmeter; apply backed-up layout; create shortcut. No desktop changes are made in Plan mode.';exit}
 New-Item -ItemType Directory -Path $destination -Force|Out-Null
 if($destination.TrimEnd('\') -ne $source.TrimEnd('\')){
- foreach($name in @('src','assets','scripts','presets','licenses','docs','bin','README.md','README.en.md','LICENSE','THIRD_PARTY_NOTICES.md','config.example.json','dependencies.lock.json','Start.cmd','Install.cmd')){
+ foreach($name in @('src','third_party','assets','scripts','presets','licenses','docs','bin','README.md','README.en.md','LICENSE','THIRD_PARTY_NOTICES.md','config.example.json','dependencies.lock.json','lyrics-dependencies.lock.json','Start.cmd','Install.cmd')){
   $path=Join-Path $source $name
   if(Test-Path -LiteralPath $path){Copy-Item -LiteralPath $path -Destination $destination -Recurse -Force}
  }

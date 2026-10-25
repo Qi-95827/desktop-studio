@@ -11,3 +11,6 @@
 *.lnk
 *.url
 __pycache__/
+**/bin/
+**/obj/
+/.build/

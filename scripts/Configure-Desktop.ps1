@@ -30,10 +30,12 @@ foreach($file in Get-ChildItem -LiteralPath $overlay -Recurse -File){
  $target=Join-Path $RainmeterHome ('Skins\Monterey\'+$relative)
  $text=[IO.File]::ReadAllText($file.FullName).Replace('__STUDIO_ROOT__',$StudioRoot).Replace('__RAINMETER_HOME__',$RainmeterHome).Replace('__NETEASE_EXE__',[string]$StudioConfig.NetEaseExe).Replace('__CITY__',[string]$StudioConfig.City).Replace('__LATITUDE__',$StudioConfig.Latitude.ToString([Globalization.CultureInfo]::InvariantCulture)).Replace('__LONGITUDE__',$StudioConfig.Longitude.ToString([Globalization.CultureInfo]::InvariantCulture))
  New-Item -ItemType Directory -Path (Split-Path $target) -Force|Out-Null
- [IO.File]::WriteAllText($target,$text,[Text.Encoding]::Unicode)
+ $encoding=if($file.Extension -eq '.lua'){[Text.UTF8Encoding]::new($false)}else{[Text.Encoding]::Unicode}
+ [IO.File]::WriteAllText($target,$text,$encoding)
 }
 $state="[Variables]`r`nMusicTitle=网易云音乐`r`nMusicArtist=等待播放`r`nMusicState=0`r`nMusicCover=`r`n"
 [IO.File]::WriteAllText((Join-Path $StudioRoot 'Data\NetEase\MusicState.inc'),$state,[Text.Encoding]::Unicode)
+& (Join-Path $PSScriptRoot 'Set-Lyrics.ps1') -Enabled $false
 $ini="[Rainmeter]`r`nSkinPath=$RainmeterHome\Skins\`r`nLogging=0`r`nLanguage=2052`r`n"
 foreach($spec in @(@('Weather',3,150,240),@('Calendar',2,480,240),@('Music',6,150,570))){$ini+="`r`n[Monterey\Widgets\$($spec[0])]`r`nActive=$($spec[1])`r`nWindowX=$($spec[2])`r`nWindowY=$($spec[3])`r`nAlwaysOnTop=-2`r`nDraggable=1`r`nKeepOnScreen=1`r`nSnapEdges=1`r`n"}
 [IO.File]::WriteAllText((Join-Path $RainmeterHome 'Rainmeter.ini'),$ini,[Text.Encoding]::Unicode)

@@ -10,7 +10,11 @@ $null=[Windows.Storage.Streams.IRandomAccessStreamWithContentType,Windows.Storag
 $asTask=[System.WindowsRuntimeSystemExtensions].GetMethods()|Where-Object {$_.Name -eq 'AsTask' -and $_.IsGenericMethod -and $_.GetParameters().Count -eq 1 -and $_.GetParameters()[0].ParameterType.Name -eq 'IAsyncOperation`1'}|Select-Object -First 1
 function Await-Result($op,$type){$task=$asTask.MakeGenericMethod($type).Invoke($null,@($op));$task.Wait();$task.Result}
 $manager=Await-Result ([Windows.Media.Control.GlobalSystemMediaTransportControlsSessionManager]::RequestAsync()) ([Windows.Media.Control.GlobalSystemMediaTransportControlsSessionManager])
-function Get-NetEaseSession {$manager.GetSessions()|Where-Object {$_.SourceAppUserModelId -match 'cloudmusic'}|Select-Object -First 1}
+function Get-NetEaseSession {
+ $sessions=@($manager.GetSessions()|Where-Object {$_.SourceAppUserModelId -match 'cloudmusic|netease|inflink'})
+ $best=$sessions|Where-Object {$_.GetTimelineProperties().EndTime.TotalMilliseconds -gt 0}|Select-Object -First 1
+ if($best){return $best};$sessions|Select-Object -First 1
+}
 if($Action -ne 'Watch') {
  $session=Get-NetEaseSession
  if($session){switch($Action){'PlayPause'{$op=$session.TryTogglePlayPauseAsync()};'Next'{$op=$session.TrySkipNextAsync()};'Previous'{$op=$session.TrySkipPreviousAsync()}};Await-Result $op ([bool])|Out-Null}
@@ -24,10 +28,16 @@ try {
   try {
    $session=Get-NetEaseSession
    $title='网易云音乐';$artist='打开网易云，开始播放';$state=0
+   $snapshot=@{Title=$title;Artist=$artist;SongId='';State=0;PositionMs=0;DurationMs=0;UpdatedUnixMs=([DateTimeOffset]::UtcNow.ToUnixTimeMilliseconds());HasTimeline=$false;ObservedUnixMs=([DateTimeOffset]::UtcNow.ToUnixTimeMilliseconds())}
    if($session){
     $props=Await-Result ($session.TryGetMediaPropertiesAsync()) ([Windows.Media.Control.GlobalSystemMediaTransportControlsSessionMediaProperties])
-    $title=$props.Title;$artist=$props.Artist;$playback=$session.GetPlaybackInfo().PlaybackStatus.ToString();$state=if($playback -eq 'Playing'){1}elseif($playback -eq 'Paused'){2}else{0}
+    $title=$props.Title;$artist=$props.Artist;$playback=$session.GetPlaybackInfo().PlaybackStatus.ToString();$state=if($playback -eq 'Playing'){1}elseif($props.Title){2}else{0}
     $track=$title+'|'+$artist
+    $timeline=$session.GetTimelineProperties()
+    $songId=(@($props.Genres)|Where-Object {$_ -match '^NCM-\d+$'}|Select-Object -First 1) -replace '^NCM-',''
+    $stamp=$timeline.LastUpdatedTime
+    $updated=if($stamp.Year -gt 2000){([DateTimeOffset]$stamp).ToUnixTimeMilliseconds()}else{[DateTimeOffset]::UtcNow.ToUnixTimeMilliseconds()}
+    $snapshot=@{Title=$title;Artist=$artist;SongId=[string]$songId;State=$state;PositionMs=$timeline.Position.TotalMilliseconds;DurationMs=$timeline.EndTime.TotalMilliseconds;UpdatedUnixMs=$updated;HasTimeline=($timeline.EndTime.TotalMilliseconds -gt 0);ObservedUnixMs=([DateTimeOffset]::UtcNow.ToUnixTimeMilliseconds())}
     if($track -ne $lastTrack){
      $cover=''
      if($props.Thumbnail){
@@ -40,6 +50,8 @@ try {
     }
    }
    $title=$title -replace '[\r\n]',' ' -replace '#','＃';$artist=$artist -replace '[\r\n]',' ' -replace '#','＃'
+   [IO.File]::WriteAllText((Join-Path $mediaRoot 'media-snapshot.json.tmp'),($snapshot|ConvertTo-Json),[Text.UTF8Encoding]::new($false))
+   Move-Item -LiteralPath (Join-Path $mediaRoot 'media-snapshot.json.tmp') -Destination (Join-Path $mediaRoot 'media-snapshot.json') -Force
    $output="title=$title`nartist=$artist`nstate=$state`ncover=$cover`n"
    if($output -ne $lastState){
     [IO.File]::WriteAllText((Join-Path $mediaRoot 'state.txt'),$output,[Text.UTF8Encoding]::new($false))
@@ -51,6 +63,6 @@ try {
     [IO.File]::WriteAllText((Join-Path $mediaRoot 'last-error.txt'),'')
    }
   }catch{$_.Exception.Message|Set-Content (Join-Path $mediaRoot 'last-error.txt') -Encoding UTF8}
-  Start-Sleep -Seconds 2
+  Start-Sleep -Milliseconds 500
  }
 }finally{$mutex.ReleaseMutex();$mutex.Dispose()}

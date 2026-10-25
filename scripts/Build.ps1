@@ -13,3 +13,4 @@ if($LASTEXITCODE){throw 'MediaThumbnail build failed.'}
 Copy-Item -LiteralPath (Join-Path $root 'assets\DesktopStudio.ico') -Destination $OutputDirectory -Force
 Copy-Item -LiteralPath (Join-Path $root 'src\DesktopStudio.exe.config') -Destination $OutputDirectory -Force
 Write-Output (Join-Path $OutputDirectory 'DesktopStudio.exe')
+& (Join-Path $PSScriptRoot 'Build-Lyrics.ps1')

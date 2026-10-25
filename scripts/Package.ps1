@@ -1,4 +1,4 @@
-﻿param([string]$Version='0.1.1')
+﻿param([string]$Version='0.2.0')
 $ErrorActionPreference='Stop'
 $root=Split-Path $PSScriptRoot
 & (Join-Path $PSScriptRoot 'Build.ps1')
@@ -9,7 +9,9 @@ New-Item -ItemType Directory -Path $stage -Force|Out-Null
 $files=& git -C $root ls-files
 if($LASTEXITCODE -or -not $files){throw 'Stage the public source files with git add before packaging.'}
 foreach($file in $files){if($file.StartsWith('.github/') -or $file -eq '.gitignore'){continue};$dest=Join-Path $stage $file;New-Item -ItemType Directory -Path (Split-Path $dest) -Force|Out-Null;Copy-Item -LiteralPath (Join-Path $root $file) -Destination $dest}
-Copy-Item -LiteralPath (Join-Path $root 'bin') -Destination $stage -Recurse
+$stageBin=Join-Path $stage 'bin';New-Item -ItemType Directory -Path $stageBin -Force|Out-Null
+foreach($name in @('DesktopStudio.exe','DesktopStudio.exe.config','DesktopStudio.ico','MediaThumbnail.dll')){Copy-Item -LiteralPath (Join-Path $root ('bin\'+$name)) -Destination $stageBin}
+& (Join-Path $PSScriptRoot 'Build-Lyrics.ps1') -SelfContained -OutputDirectory (Join-Path $stageBin 'Lyrics')
 $zip=Join-Path $dist ('DesktopStudio-'+$Version+'-win-x64.zip')
 Compress-Archive -LiteralPath $stage -DestinationPath $zip
 $hash=(Get-FileHash -LiteralPath $zip -Algorithm SHA256).Hash.ToLowerInvariant()

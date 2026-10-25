@@ -9,6 +9,7 @@ function Widgets-On {
  if($running -and @($running|Where-Object {$_.Path -ne $RainmeterExe}).Count){throw 'Another Rainmeter installation is already running. Exit it before using this package.'}
  & (Join-Path $PSScriptRoot 'Start-HdpiRainmeter.ps1') -RainmeterExe $RainmeterExe
  Start-StudioWorker 'NetEase-Media.ps1'
+ & (Join-Path $PSScriptRoot 'Start-Lyrics.ps1')
 }
 switch($Action){
  'Apply'{
