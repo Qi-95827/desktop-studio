@@ -11,6 +11,21 @@ Monterey provide the desktop engines and skins. This repository adds the native 
 start/restore scripts, a soft white theme, native DPI configuration and a dedicated
 NetEase media bridge. Upstream projects keep their authorship and licenses.
 
+## Desktop showcase
+
+![Actual 4K desktop with soft white widgets, toolbar and dock](docs/shots/desktop-4k.png)
+
+Actual desktop capture at **3840 × 2160**, with the music card idle.
+The example wallpapers, application icons and personal application arrangement
+are not distributed with the integration package.
+
+![Application categories with proportional icons](docs/shots/app-categories.png)
+
+Folder previews and expanded application icons use square layout boxes while
+preserving each image's original aspect ratio.
+
+## Native workbench
+
 ![Desktop Studio](docs/shots/workbench.png)
 
 ## Features
